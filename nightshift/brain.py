@@ -53,13 +53,16 @@ def offline_plan(goal: str) -> dict:
 
 
 def _gemini_plan(goal: str, model: str, api_key: str):
+    # Key travels in the x-goog-api-key header, never in the URL query
+    # string (proxies and logs routinely record full URLs).
     url = (f"https://generativelanguage.googleapis.com/v1beta/models/"
-           f"{model}:generateContent?key={api_key}")
+           f"{model}:generateContent")
     prompt = ("Return ONLY JSON with keys product_name, headline, features (3 short strings) "
               f"for this goal: {goal}")
     body = json.dumps({"contents": [{"parts": [{"text": prompt}]}]}).encode()
     req = urllib.request.Request(url, data=body,
-                                 headers={"Content-Type": "application/json"})
+                                 headers={"Content-Type": "application/json",
+                                          "x-goog-api-key": api_key})
     with urllib.request.urlopen(req, timeout=30) as resp:
         data = json.loads(resp.read().decode())
     tokens = int(data.get("usageMetadata", {}).get("totalTokenCount", 0))
@@ -73,7 +76,7 @@ def _gemini_plan(goal: str, model: str, api_key: str):
     return plan, tokens
 
 
-def plan(goal: str, model: str = "gemini-2.5-flash") -> BrainResult:
+def plan(goal: str, model: str = "gemini-3.5-flash-lite") -> BrainResult:
     key = os.environ.get("GEMINI_API_KEY", "").strip()
     if key:
         try:

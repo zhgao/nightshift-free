@@ -13,7 +13,7 @@ from . import researcher, scout, vault
 from .builder import landing_html, report_html
 
 DEFAULT_CONFIG = {"budget_cap_usd": 10.0, "domain_proposed_usd": 49.0,
-                  "gemini_model": "gemini-2.5-flash", "keywords": scout.DEFAULT_KEYWORDS}
+                  "gemini_model": "gemini-3.5-flash-lite", "keywords": scout.DEFAULT_KEYWORDS}
 
 
 def load_config(path=None):
@@ -73,7 +73,7 @@ def run_pipeline(goal, out_dir, config=None, target_dir=".", signals_file=None):
         plan, brain_mode, tokens = saved["plan"], saved["mode"], saved["tokens"]
         steps_summary.append({"name": "brain", "status": "done (resumed)", "detail": brain_mode})
     else:
-        br = brain_mod.plan(goal, model=cfg.get("gemini_model", "gemini-2.5-flash"))
+        br = brain_mod.plan(goal, model=cfg.get("gemini_model", "gemini-3.5-flash-lite"))
         plan, brain_mode, tokens = br.plan, br.mode, br.tokens
         with open(brain_file, "w", encoding="utf-8") as fh:
             json.dump({"mode": brain_mode, "tokens": tokens, "cost_usd": 0.0, "plan": plan}, fh, indent=2, ensure_ascii=False)
